@@ -7,6 +7,7 @@ RUN apt-get update
 RUN adduser -D -S -h /home/ds -s /bin/ash ds
 
 #install neccessary packages
+RUN pip install --upgrade pip
 RUN pip install jupyterlab boto3 gensim tweet-preprocessor
 RUN conda update conda
 RUN conda install nltk
