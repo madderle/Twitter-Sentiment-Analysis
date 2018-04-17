@@ -8,7 +8,7 @@ import re
 import time
 import matplotlib.pyplot as plt
 import seaborn as sns
-%matplotlib inline
+
 import boto3
 import io
 import warnings
