@@ -7,7 +7,7 @@ import json
 import time
 from datetime import date, datetime
 import os
-
+print('Starting up Data Manager...')
 ############# Redis Setup ##############################
 # Connect to the DataStore
 REDIS = redis.Redis(host='data_store')
@@ -16,7 +16,7 @@ REDIS = redis.Redis(host='data_store')
 queue = REDIS.pubsub()
 # Subscribe to the event queue
 queue.subscribe('event_queue')
-
+print('Redis Connected...')
 ############## Execute ##################################
 while True:
     # Get message
@@ -26,7 +26,7 @@ while True:
         print('------ REDIS Message -------')
         event_time = datetime.now()
         print(event_time)
-        print(next_message)
+        print(next_message['data'])
         # Ignore the initial 1 or 2 that comes out of the queue.
 
     time.sleep(1)

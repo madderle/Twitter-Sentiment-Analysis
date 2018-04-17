@@ -8,7 +8,7 @@ RUN adduser -D -S -h /home/ds -s /bin/ash ds
 
 #install neccessary packages
 RUN pip install --upgrade pip
-RUN pip install redis
+RUN pip install redis jupyter
 
 
 
@@ -18,6 +18,3 @@ ENV SHELL=/bin/bash
 ENV USER=ds
 VOLUME /home/ds
 WORKDIR /home/ds
-
-#Add script
-ADD Data_Manager.py /home/ds

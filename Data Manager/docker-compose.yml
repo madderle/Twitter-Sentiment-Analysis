@@ -5,8 +5,17 @@ services:
     command: python Data_Manager.py
     depends_on:
       - data_store
-    container_name: data_manager_01
-    image: madderle/twitter-sentiment-analysis:data-manager-1.0
+    container_name: twitter_data_manager
+    ports:
+      - "9999:9999"
+    image: madderle/twitter-sentiment-analysis:data-manager-2.0
+    environment:
+     - PYTHONUNBUFFERED=1
+    volumes:
+      - ./src:/home/ds
 
   data_store:
+    container_name: twitter_data_store
     image: redis:alpine
+    ports:
+      - 6379:6379
