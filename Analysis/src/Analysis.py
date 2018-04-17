@@ -6,8 +6,7 @@ import pandas as pd
 import scipy
 import re
 import time
-import matplotlib.pyplot as plt
-import seaborn as sns
+
 
 import boto3
 import io
