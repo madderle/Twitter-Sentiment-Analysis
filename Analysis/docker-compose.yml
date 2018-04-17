@@ -4,6 +4,7 @@ version : '2'
 services:
     analytics:
       image: madderle/twitter-sentiment-analysis:analysis-2.0
+      command: python Analysis.py
       volumes:
         - ./src:/home/ds
 
