@@ -95,7 +95,7 @@ tweets_subsampled_1, tweets_subsampled_2 = train_test_split(tweets, test_size=0.
 y = tweets_subsampled_2['sentiment']
 X = tweets_subsampled_2['Clean']
 
-# Base Model Evaluation
+# Transform the Data
 start_time = time.time()
 # Create lemmatizer using spacy
 lemmatizer = spacy.lang.en.English()
@@ -115,4 +115,48 @@ pipe = Pipeline(steps=[('vectidf', TfidfVectorizer(tokenizer=custom_tokenizer, s
 
 tweets_transform = pipe.fit_transform(X)
 
-send_event("Base Model- Execution time: %s seconds ---" % (time.time() - start_time))
+send_event("Transform Data - Execution time: %s seconds ---" % (time.time() - start_time))
+
+# splitting into training and test sets
+X_train, X_test, y_train, y_test = train_test_split(tweets_transform, y, test_size=0.25)
+
+####### Base Line Model ########
+warnings.filterwarnings('ignore')
+start_time = time.time()
+
+xgb_model = XGBClassifier(random_state=10)
+
+
+parameters = {'n_jobs': [-1],
+              }
+
+clf = GridSearchCV(xgb_model, parameters, cv=3, verbose=0, n_jobs=1)
+clf.fit(X_train, y_train)
+
+
+send_event("Base Line Model - Execution time: %s seconds ---" % (time.time() - start_time))
+send_event("Base Line Model - CV Score: " + str(clf.best_score_))
+send_event("Best Params: " + str(clf.best_params_))
+
+# Tune estimators and the learning parameter
+warnings.filterwarnings('ignore')
+start_time = time.time()
+xgb_model = XGBClassifier(max_depth=5,
+                          min_child_weight=5,
+                          gamma=0.1,
+                          subsample=0.8,
+                          colsample_bytree=0.8,
+                          scale_pos_weight=1,
+                          random_state=10)
+
+
+parameters = {'n_jobs': [-1],
+              'n_estimators': range(500, 5501, 1000),
+              'learning_rate': [0.0001, 0.001, 0.01, 0.1, 0.2]
+              }
+
+clf = GridSearchCV(xgb_model, parameters, cv=3, verbose=0, n_jobs=1)
+clf.fit(X_train, y_train)
+send_event(" Tune Estimators- CV Score: " + str(clf.best_score_))
+send_event("Tune Estimators - Execution time: %s seconds ---" % (time.time() - start_time))
+send_event("Best Params: " + str(clf.best_params_))
