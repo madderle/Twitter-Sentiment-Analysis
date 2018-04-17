@@ -23,6 +23,3 @@ ENV SHELL=/bin/bash
 ENV USER=ds
 VOLUME /home/ds
 WORKDIR /home/ds
-
-#Add script
-ADD Analysis.py /home/ds

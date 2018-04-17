@@ -94,3 +94,25 @@ tweets_subsampled_1, tweets_subsampled_2 = train_test_split(tweets, test_size=0.
 # Split between outcome and Features
 y = tweets_subsampled_2['sentiment']
 X = tweets_subsampled_2['Clean']
+
+# Base Model Evaluation
+start_time = time.time()
+# Create lemmatizer using spacy
+lemmatizer = spacy.lang.en.English()
+
+
+def custom_tokenizer(doc):
+    tokens = lemmatizer(doc)
+    return([token.lemma_ for token in tokens if not token.is_punct])
+
+
+pipe = Pipeline(steps=[('vectidf', TfidfVectorizer(tokenizer=custom_tokenizer, stop_words='english',
+                                                   lowercase=True, use_idf=True, max_df=0.5,
+                                                   min_df=2, norm='l2', smooth_idf=True)),
+                       ('svd', TruncatedSVD(500)),
+                       #('norm',Normalizer(copy=False))
+                       ])
+
+tweets_transform = pipe.fit_transform(X)
+
+send_event("Base Model- Execution time: %s seconds ---" % (time.time() - start_time))
