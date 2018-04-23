@@ -155,8 +155,10 @@ pipe = Pipeline(steps=[('vectidf', TfidfVectorizer(tokenizer=custom_tokenizer, s
                                        ])
 tweets_transform = pipe.fit_transform(X)
 send_event("Explained Variance: " + str(pipe.get_params()['svd'].explained_variance_ratio_.sum()))
-
+send_event("Dimension Rediction - Execution time: %s seconds ---" % (time.time() - start_time))
 #splitting into training and test sets even though still going to do k folds on the training data.
+
+start_time = time.time()
 X_train, X_test, y_train, y_test = train_test_split(tweets_transform,y,test_size=0.25)
 
 xgb_model = XGBClassifier(max_depth=5,
