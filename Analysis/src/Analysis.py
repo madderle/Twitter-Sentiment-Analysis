@@ -138,25 +138,40 @@ send_event("Base Line Model - Execution time: %s seconds ---" % (time.time() - s
 send_event("Base Line Model - CV Score: " + str(clf.best_score_))
 send_event("Best Params: " + str(clf.best_params_))
 
-# Tune estimators and the learning parameter
+##### Train Model and Test #########
 warnings.filterwarnings('ignore')
 start_time = time.time()
+send_event("Starting full model training...")
+#Split between outcome and Features
+y = tweets['sentiment']
+X = tweets['Clean']
+
+# Transform Data
+pipe = Pipeline(steps=[('vectidf', TfidfVectorizer(tokenizer=custom_tokenizer, stop_words='english',
+                                                   lowercase=True,use_idf=True,max_df=0.5,
+                                                  min_df=2, norm='l2', smooth_idf=True, ngram_range=(1,2))),
+                 ('svd', TruncatedSVD(5000)),
+                 ('norm',Normalizer(copy=False))
+                                       ])
+tweets_transform = pipe.fit_transform(X)
+send_event("Explained Variance: " + str(pipe.get_params()['svd'].explained_variance_ratio_.sum()))
+
+#splitting into training and test sets even though still going to do k folds on the training data.
+X_train, X_test, y_train, y_test = train_test_split(tweets_transform,y,test_size=0.25)
+
 xgb_model = XGBClassifier(max_depth=5,
                           min_child_weight=5,
                           gamma=0.1,
                           subsample=0.8,
                           colsample_bytree=0.8,
                           scale_pos_weight=1,
-                          random_state=10)
+                          random_state=10,
+                          n_estimators=5000,
+                          learning_rate=0.01,
+                          n_jobs=-1)
 
 
-parameters = {'n_jobs': [-1],
-              'n_estimators': range(500, 5501, 1000),
-              'learning_rate': [0.0001, 0.001, 0.01, 0.1, 0.2]
-              }
+xgb_model.fit(X_train, y_train)
 
-clf = GridSearchCV(xgb_model, parameters, cv=3, verbose=0, n_jobs=1)
-clf.fit(X_train, y_train)
-send_event(" Tune Estimators- CV Score: " + str(clf.best_score_))
-send_event("Tune Estimators - Execution time: %s seconds ---" % (time.time() - start_time))
-send_event("Best Params: " + str(clf.best_params_))
+send_event("Test Set Score: " + str(xgb_model.score(X_test, y_test)))
+send_event("Train - Execution time: %s seconds ---" % (time.time() - start_time))
