@@ -25,23 +25,17 @@ while True:
     next_message = queue.get_message()
 
     if next_message:
-        #print('-------------- REDIS MEssage')
-        # print(next_message)
+
         try:
             payload = next_message['data'].decode()
             payload_data = json.loads(payload)
             # check which queue
             channel = next_message['channel'].decode()
-            # print(channel)
 
             if channel == 'event_queue':
-                # print(payload)
-                # print(payload_data['session'])
-                #payload_session = paload_data['session']
-                # print(payload_session)
+
                 if payload_data['session'] != session:
-                    print("------------------ Session -------------------")
-                    print(session)
+                    print("-------------------------- Session ---------------------------")
                     session = payload_data['session']
                     print(session)
                 event_time = datetime.now()
