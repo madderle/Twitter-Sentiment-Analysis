@@ -21,7 +21,7 @@ print('Redis Connected...')
 while True:
     # Get message
     next_message = queue.get_message()
-    session = 0
+    session = '0'
     if next_message:
         print('-------------- REDIS MEssage')
         print(next_message)
@@ -35,9 +35,9 @@ while True:
             if channel == 'event_queue':
                 # print(payload)
                 print(payload_data['session'])
-                payload_session = paload_data['session']
-                print(payload_session)
-                if payload_session != session:
+                #payload_session = paload_data['session']
+                # print(payload_session)
+                if payload_data['session'] != session:
                     print("-------------- Session ------------")
                 event_time = datetime.now()
                 print(event_time)
