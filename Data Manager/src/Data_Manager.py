@@ -18,11 +18,12 @@ queue = REDIS.pubsub()
 queue.subscribe('event_queue')
 print('Redis Connected...')
 ############## Execute ##################################
+
+session = '0'
 while True:
     # Get message
     next_message = queue.get_message()
 
-    session = '0'
     if next_message:
         #print('-------------- REDIS MEssage')
         # print(next_message)
