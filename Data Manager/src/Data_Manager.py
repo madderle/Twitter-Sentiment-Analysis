@@ -21,6 +21,7 @@ print('Redis Connected...')
 while True:
     # Get message
     next_message = queue.get_message()
+
     session = '0'
     if next_message:
         #print('-------------- REDIS MEssage')
@@ -40,6 +41,7 @@ while True:
                 if payload_data['session'] != session:
                     print("------------------ Session -------------------")
                     print(session)
+                    global session
                     session = payload_data['session']
                 event_time = datetime.now()
                 print(event_time)
