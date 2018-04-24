@@ -194,7 +194,7 @@ print("Starting Dimension Reduction...")
 
 
 # Dimension Reduction
-pipe = Pipeline(steps=[('svd', TruncatedSVD(50000)),
+pipe = Pipeline(steps=[('svd', TruncatedSVD(10000)),
                        ('norm', Normalizer(copy=False))
                        ])
 tweets_transform = pipe.fit_transform(tweets_tfidf)
