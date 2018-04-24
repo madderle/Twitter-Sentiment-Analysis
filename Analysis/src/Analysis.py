@@ -33,7 +33,9 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import classification_report
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import cross_val_score
+import dill as pickle
 
+s3 = boto3.client('s3')
 
 # Models
 from sklearn.linear_model import LogisticRegression
@@ -41,7 +43,7 @@ from sklearn import linear_model
 import xgboost as xgb
 from xgboost.sklearn import XGBClassifier
 
-################################### Setup Redis ###########################
+################################### Setup Redis #################################################
 
 # Get Environment Variables
 REDIS_IP = os.environ['REDIS_IP']
@@ -49,12 +51,12 @@ REDIS_IP = os.environ['REDIS_IP']
 # Connect to Redis-DataStore
 REDIS = redis.Redis(host=REDIS_IP)
 
-################################## Log Function ###########################
+###################################### Functions ################################################
 
 # Code to log to the event queue
 session = str(int(time.time()))
 
-
+# Sends message to the data Manager
 def send_event(message):
     event = {
         "session": session,
@@ -63,10 +65,22 @@ def send_event(message):
     payload = json.dumps(event)
     REDIS.publish('event_queue', payload)
 
+# Custom tokenizer leveraging Spacy
+def custom_tokenizer(doc):
+    tokens = lemmatizer(doc)
+    return([token.lemma_ for token in tokens if not token.is_punct])
+# Create pickle file and upload to S3
+def create_upload(object, file_name):
+    # Pickle File
+    with open(filename, 'wb') as file:
+        pickle.dump(object, file)
+
+    # Upload to S3
+    data = open(filename, 'rb')
+    s3.Bucket('data-science-project-data').put_object(Key='Twitter_Sentiment_Analysis/'+filename, Body=data)
 
 #################################### Bring in Data #############################################
 start_time = time.time()
-s3 = boto3.client('s3')
 
 # Bring in Training Data
 obj = s3.get_object(Bucket='data-science-project-data',
@@ -77,6 +91,7 @@ tweets = pd.read_csv(io.BytesIO(obj['Body'].read()), header=None, names=cols, en
 send_event("Bring in data- Execution time: %s seconds ---" % (time.time() - start_time))
 print("Bring in data- Execution time: %s seconds ---" % (time.time() - start_time))
 
+################################### Clean Data ##########################################
 # Just Need the Sentiment and the Text
 tweets.drop(['id', 'date', 'query_string', 'user'], axis=1, inplace=True)
 
@@ -93,6 +108,9 @@ start_time = time.time()
 tweets['Clean'] = tweets['text'].apply(lambda x: preprocess_tweet(x))
 send_event("Clean Tweets- Execution time: %s seconds ---" % (time.time() - start_time))
 print("Clean Tweets- Execution time: %s seconds ---" % (time.time() - start_time))
+
+
+############################### Base Line Model ###################################
 # Down Sample
 tweets_subsampled_1, tweets_subsampled_2 = train_test_split(tweets, test_size=0.1)
 
@@ -100,16 +118,10 @@ tweets_subsampled_1, tweets_subsampled_2 = train_test_split(tweets, test_size=0.
 y = tweets_subsampled_2['sentiment']
 X = tweets_subsampled_2['Clean']
 
-# Transform the Data
+# Transform the Data for Base Line Model
 start_time = time.time()
 # Create lemmatizer using spacy
 lemmatizer = spacy.lang.en.English()
-
-
-def custom_tokenizer(doc):
-    tokens = lemmatizer(doc)
-    return([token.lemma_ for token in tokens if not token.is_punct])
-
 
 pipe = Pipeline(steps=[('vectidf', TfidfVectorizer(tokenizer=custom_tokenizer, stop_words='english',
                                                    lowercase=True, use_idf=True, max_df=0.5,
@@ -125,7 +137,7 @@ print("Transform Data - Execution time: %s seconds ---" % (time.time() - start_t
 # splitting into training and test sets
 X_train, X_test, y_train, y_test = train_test_split(tweets_transform, y, test_size=0.25)
 
-####### Base Line Model ########
+# Base Model Build
 warnings.filterwarnings('ignore')
 start_time = time.time()
 
@@ -146,14 +158,21 @@ print("Base Line Model - Execution time: %s seconds ---" % (time.time() - start_
 print("Base Line Model - CV Score: " + str(clf.best_score_))
 print("Best Params: " + str(clf.best_params_))
 
-##### Train Model and Test #########
+############################## Full Model and Test #####################################
 warnings.filterwarnings('ignore')
 start_time = time.time()
 send_event("Starting full model training...")
 print("Starting full model training...")
+
+
 # Split between outcome and Features
-y = tweets['sentiment']
-X = tweets['Clean']
+# Down Sample trying to save model training time my reducing the size of the set.
+tweets_subsampled_1, tweets_subsampled_2 = train_test_split(tweets, test_size=0.5)
+
+# Split between outcome and Features
+y = tweets_subsampled_2['sentiment']
+X = tweets_subsampled_2['Clean']
+
 
 # Transform Data
 # Not included the vectorizer in pipe so I can see how many features
@@ -164,14 +183,23 @@ vectorizer = TfidfVectorizer(tokenizer=custom_tokenizer, stop_words='english',
                              min_df=2, norm='l2', smooth_idf=True, ngram_range=(1, 2))
 
 tweets_tfidf = vectorizer.fit_transform(X)
-print("Number of features: %d" % tweets_tfidf.get_shape()[1])
-send_event("Number of features: %d" % tweets_tfidf.get_shape()[1])
+
+print("Vectorizing Finished. Number of features: %d" % tweets_tfidf.get_shape()[1])
+send_event("Vectorizing Finished. Number of features: %d" % tweets_tfidf.get_shape()[1])
+
+send_event("Starting Dimension Reduction...")
+print("Starting Dimension Reduction...")
+
+# Pickle and Upload to S3
+
 
 # Dimension Reduction
 pipe = Pipeline(steps=[('svd', TruncatedSVD(15000)),
                        ('norm', Normalizer(copy=False))
                        ])
 tweets_transform = pipe.fit_transform(tweets_tfidf)
+
+
 send_event("Explained Variance: " + str(pipe.get_params()['svd'].explained_variance_ratio_.sum()))
 send_event("Dimension Reduction - Execution time: %s seconds ---" % (time.time() - start_time))
 print("Explained Variance: " + str(pipe.get_params()['svd'].explained_variance_ratio_.sum()))
