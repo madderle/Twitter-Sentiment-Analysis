@@ -23,14 +23,17 @@ while True:
     next_message = queue.get_message()
     session = 0
     if next_message:
-        payload = next_message['data'].decode()
-        # check which queue
-        if next_message['channel'].decode() == 'event_queue':
-            payload_session = paload['session']
-            if payload_session != session:
-                print('-------------- Session: {} ------------'.format(payload_session))
-            event_time = datetime.now()
-            print(event_time)
-            print(payload['message'])
+        try:
+            payload = next_message['data'].decode()
+            # check which queue
+            if next_message['channel'].decode() == 'event_queue':
+                payload_session = paload['session']
+                if payload_session != session:
+                    print('-------------- Session: {} ------------'.format(payload_session))
+                event_time = datetime.now()
+                print(event_time)
+                print(payload['message'])
+        except:
+            pass
 
     time.sleep(1)
