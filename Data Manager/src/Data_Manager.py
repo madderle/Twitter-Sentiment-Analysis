@@ -23,6 +23,8 @@ while True:
     next_message = queue.get_message()
     session = 0
     if next_message:
+        print('-------------- REDIS MEssage')
+        print(next_message)
         try:
             payload = next_message['data'].decode()
             # check which queue
