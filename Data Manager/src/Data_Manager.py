@@ -27,11 +27,12 @@ while True:
         print(next_message)
         try:
             payload = next_message['data'].decode()
+            payload_data = json.loads(payload)
             # check which queue
             channel = next_message['channel'].decode()
             print(channel)
             if channel == 'event_queue':
-                payload_session = paload['session']
+                payload_session = paload_data['session']
                 print(payload_session)
                 if payload_session != session:
                     print("-------------- Session ------------")
