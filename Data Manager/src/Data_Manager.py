@@ -31,10 +31,10 @@ while True:
             channel = next_message['channel'].decode()
             print(channel)
             if channel == 'event_queue':
-                print(payload)
                 payload_session = paload['session']
+                print(payload_session)
                 if payload_session != session:
-                    print('-------------- Session: {} ------------'.format(payload_session))
+                    print("-------------- Session ------------")
                 event_time = datetime.now()
                 print(event_time)
                 print(payload['message'])
