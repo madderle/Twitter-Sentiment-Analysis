@@ -52,10 +52,15 @@ REDIS = redis.Redis(host=REDIS_IP)
 ################################## Log Function ###########################
 
 # Code to log to the event queue
+session = str(int(time.time()))
 
 
 def send_event(message):
-    payload = json.dumps(message)
+    event = {
+        "session": session,
+        "message": message
+    }
+    payload = json.dumps(event)
     REDIS.publish('event_queue', payload)
 
 
@@ -146,26 +151,35 @@ warnings.filterwarnings('ignore')
 start_time = time.time()
 send_event("Starting full model training...")
 print("Starting full model training...")
-#Split between outcome and Features
+# Split between outcome and Features
 y = tweets['sentiment']
 X = tweets['Clean']
 
 # Transform Data
-pipe = Pipeline(steps=[('vectidf', TfidfVectorizer(tokenizer=custom_tokenizer, stop_words='english',
-                                                   lowercase=True,use_idf=True,max_df=0.5,
-                                                  min_df=2, norm='l2', smooth_idf=True, ngram_range=(1,2))),
-                 ('svd', TruncatedSVD(5000)),
-                 ('norm',Normalizer(copy=False))
-                                       ])
-tweets_transform = pipe.fit_transform(X)
+# Not included the vectorizer in pipe so I can see how many features
+print("Starting vectorization...")
+send_event("Starting vectorization...")
+vectorizer = TfidfVectorizer(tokenizer=custom_tokenizer, stop_words='english',
+                             lowercase=True, use_idf=True, max_df=0.5,
+                             min_df=2, norm='l2', smooth_idf=True, ngram_range=(1, 2))
+
+tweets_tfidf = vectorizer.fit_transform(X)
+print("Number of features: %d" % tweets_tfidf.get_shape()[1])
+send_event("Number of features: %d" % tweets_tfidf.get_shape()[1])
+
+# Dimension Reduction
+pipe = Pipeline(steps=[('svd', TruncatedSVD(15000)),
+                       ('norm', Normalizer(copy=False))
+                       ])
+tweets_transform = pipe.fit_transform(tweets_tfidf)
 send_event("Explained Variance: " + str(pipe.get_params()['svd'].explained_variance_ratio_.sum()))
-send_event("Dimension Rediction - Execution time: %s seconds ---" % (time.time() - start_time))
+send_event("Dimension Reduction - Execution time: %s seconds ---" % (time.time() - start_time))
 print("Explained Variance: " + str(pipe.get_params()['svd'].explained_variance_ratio_.sum()))
 print("Dimension Rediction - Execution time: %s seconds ---" % (time.time() - start_time))
-#splitting into training and test sets even though still going to do k folds on the training data.
+
 print('Start model training...')
 start_time = time.time()
-X_train, X_test, y_train, y_test = train_test_split(tweets_transform,y,test_size=0.25)
+X_train, X_test, y_train, y_test = train_test_split(tweets_transform, y, test_size=0.3)
 
 xgb_model = XGBClassifier(max_depth=5,
                           min_child_weight=5,
