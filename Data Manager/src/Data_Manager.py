@@ -40,8 +40,8 @@ while True:
                 # print(payload_session)
                 if payload_data['session'] != session:
                     print("------------------ Session -------------------")
-                    print(session)
                     global session
+                    print(session)
                     session = payload_data['session']
                 event_time = datetime.now()
                 print(event_time)
