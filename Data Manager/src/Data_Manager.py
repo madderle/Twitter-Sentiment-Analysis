@@ -40,9 +40,9 @@ while True:
                 # print(payload_session)
                 if payload_data['session'] != session:
                     print("------------------ Session -------------------")
-                    global session
                     print(session)
                     session = payload_data['session']
+                    print(session)
                 event_time = datetime.now()
                 print(event_time)
                 print(payload_data['message'])
