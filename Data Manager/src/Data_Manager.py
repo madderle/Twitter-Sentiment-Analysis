@@ -33,7 +33,8 @@ while True:
             # print(channel)
 
             if channel == 'event_queue':
-                print(payload)
+                # print(payload)
+                print(payload['session'])
                 payload_session = paload_data['session']
                 print(payload_session)
                 if payload_session != session:
