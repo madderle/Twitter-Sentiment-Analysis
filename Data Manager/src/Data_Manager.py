@@ -31,6 +31,7 @@ while True:
             # check which queue
             channel = next_message['channel'].decode()
             print(channel)
+            print(channel == 'event_queue')
             if str(channel) == 'event_queue':
                 payload_session = paload_data['session']
                 print(payload_session)
