@@ -21,12 +21,18 @@ print('Redis Connected...')
 while True:
     # Get message
     next_message = queue.get_message()
-    #next_message = json.loads(queue.get_message()['data'].decode())
+    session = 0
     if next_message:
-        print('------ REDIS Message -------')
-        event_time = datetime.now()
-        print(event_time)
-        print(next_message['data'])
-        # Ignore the initial 1 or 2 that comes out of the queue.
+
+        try:
+            payload = next_message['data'].decode()
+            # check which queue
+            if next_message['channel'].decode() == 'event_queue':
+                payload_session = paload['session']
+                if payload_session != session:
+                    print('-------------- Session: {} ------------'.format(payload_session))
+                event_time = datetime.now()
+                print(event_time)
+                print(payload['message'])
 
     time.sleep(1)
