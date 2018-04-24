@@ -28,8 +28,10 @@ while True:
         try:
             payload = next_message['data'].decode()
             # check which queue
-            print(next_message['channel'].decode())
-            if next_message['channel'].decode() == 'event_queue':
+            channel = next_message['channel'].decode()
+            print(channel)
+            if channel == 'event_queue':
+                print(payload)
                 payload_session = paload['session']
                 if payload_session != session:
                     print('-------------- Session: {} ------------'.format(payload_session))
