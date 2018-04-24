@@ -39,10 +39,10 @@ while True:
                 # print(payload_session)
                 if payload_data['session'] != session:
                     print("-------------- Session ------------")
-                    session = payload_session
+                    session = payload_data['session']
                 event_time = datetime.now()
-                # print(event_time)
-                print('(' + str(event_time) + ') - ' + str(payload_data['message']))
+                print(event_time)
+                print(payload_data['message'])
         except:
             pass
 
