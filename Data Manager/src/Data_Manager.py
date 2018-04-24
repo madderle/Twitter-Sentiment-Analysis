@@ -34,14 +34,14 @@ while True:
 
             if channel == 'event_queue':
                 # print(payload)
-                print(payload_data['session'])
+                # print(payload_data['session'])
                 #payload_session = paload_data['session']
                 # print(payload_session)
                 if payload_data['session'] != session:
                     print("-------------- Session ------------")
                 event_time = datetime.now()
-                print(event_time)
-                print(payload['message'])
+                # print(event_time)
+                print('(' + str(event_time) + ') - ' + str(payload_data['message']))
         except:
             pass
 
