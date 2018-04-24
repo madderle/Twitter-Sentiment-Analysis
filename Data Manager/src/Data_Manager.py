@@ -30,9 +30,10 @@ while True:
             payload_data = json.loads(payload)
             # check which queue
             channel = next_message['channel'].decode()
-            print(channel)
-            print(channel == 'event_queue')
-            if str(channel) == 'event_queue':
+            # print(channel)
+
+            if channel == 'event_queue':
+                print(payload)
                 payload_session = paload_data['session']
                 print(payload_session)
                 if payload_session != session:
