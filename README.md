@@ -21,3 +21,12 @@ could simply use a Jupyter notebook. But doing feature dimensionality reduction 
 took hours. So had to develop another way. I use AWS S3 to store the data and Launch 2 EC2
 instances. One will host a Data Manager which sole job is to display messages to the console and the
 other instance is a powerful Spot instance. To communicate between the instances I used Redis.
+
+
+## Analysis
+
+Since trying to predict sentiment on text, this is a NLP (Natural Languae Processing) problem.
+I leveraged Spacy as my tokenizer and Sklearn tfidfVectorizer to perform my Bag of words Analysis
+and tfidf transformation.
+
+For the model I used XGBoost. 
