@@ -69,15 +69,18 @@ def send_event(message):
 def custom_tokenizer(doc):
     tokens = lemmatizer(doc)
     return([token.lemma_ for token in tokens if not token.is_punct])
+
 # Create pickle file and upload to S3
 def create_upload(object, file_name):
+    # Create full name
+    full_name = '{}_{}.pkl'.format(file_name, session)
     # Pickle File
-    with open(filename, 'wb') as file:
+    with open(full_name, 'wb') as file:
         pickle.dump(object, file)
 
     # Upload to S3
-    data = open(filename, 'rb')
-    s3.Bucket('data-science-project-data').put_object(Key='Twitter_Sentiment_Analysis/'+filename, Body=data)
+    data = open(full_name, 'rb')
+    s3.Bucket('data-science-project-data').put_object(Key='Twitter_Sentiment_Analysis/'+full_name, Body=data)
 
 #################################### Bring in Data #############################################
 start_time = time.time()
