@@ -29,7 +29,7 @@ other instance is a powerful Spot instance. To communicate between the instances
 
 <img align="center" src ="../master/Images/Workflow-v3.png" />
 The next part of the workflow is to leverage Spark with distributed computing to speed up
-parts of the model building process that takes a long time. 
+parts of the model building process that takes a long time.
 
 ## Analysis
 
@@ -37,4 +37,6 @@ Since trying to predict sentiment on text, this is a NLP (Natural Languae Proces
 I leveraged Spacy as my tokenizer and Sklearn tfidfVectorizer to perform my Bag of words Analysis
 and tfidf transformation.
 
-For the model I used XGBoost.
+For the model I evaluated different models for accuarcy and speed. I eventually settled on XGBoost
+and limiting the max features in the SVD step to explain a lot of variance but still produce results in
+a timely manner. The best score of the model was ~0.74. But this was on a small amount of the data.
