@@ -16,12 +16,20 @@ The data comprises of 1.6 million labeled tweets provided by Sentiment140.
 
 ## Project Workflow
 
-Since doing NLP on a lot of data, I had to change the way I built models. In the past, I
-could simply use a Jupyter notebook. But doing feature dimensionality reduction or model building
-took hours. So had to develop another way. I use AWS S3 to store the data and Launch 2 EC2
+Since doing NLP on a lot of data, I had to change the way I built models.  
+
+<img align="center" src ="../master/Images/Workflow-v1.png" />
+In the past, I could simply use a Jupyter notebook. But doing feature dimensionality reduction or model building
+took hours.
+
+<img align="center" src ="../master/Images/Workflow-v2.png" />
+So had to develop another way. I use AWS S3 to store the data and Launch 2 EC2
 instances. One will host a Data Manager which sole job is to display messages to the console and the
 other instance is a powerful Spot instance. To communicate between the instances I used Redis.
 
+<img align="center" src ="../master/Images/Workflow-v3.png" />
+The next part of the workflow is to leverage Spark with distributed computing to speed up
+parts of the model building process that takes a long time. 
 
 ## Analysis
 
@@ -29,4 +37,4 @@ Since trying to predict sentiment on text, this is a NLP (Natural Languae Proces
 I leveraged Spacy as my tokenizer and Sklearn tfidfVectorizer to perform my Bag of words Analysis
 and tfidf transformation.
 
-For the model I used XGBoost. 
+For the model I used XGBoost.
