@@ -16,8 +16,5 @@ sudo pip install -U \
 sudo pip-3.4 install -U \
   boto              \
   jupyterlab        \
-  numpy             \
-  pandas            \
+  findspark         \
   tweet-preprocessor
-
-jupyter lab --no-browser --port 7777 --ip='*' --allow-root --NotebookApp.iopub_data_rate_limit=10000000
