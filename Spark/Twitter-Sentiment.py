@@ -79,7 +79,7 @@ test_clean_data = testing_cleaner.select(['label','features'])
 print("-- Execution time: %s seconds ---" % (time.time() - start_time))
 
 #################### Models #####################################
-# Naive Bayes
+######### Naive Bayes ##########
 start_time = time.time()
 nb = NaiveBayes()
 
@@ -88,6 +88,48 @@ naive_model = nb.fit(train_clean_data)
 
 # Evaluate the model
 test_results = naive_model.transform(test_clean_data)
+acc_eval = MulticlassClassificationEvaluator()
+acc = acc_eval.evaluate(test_results)
+print("Accuracy of model at predicting spam was: {}".format(acc))
+print("-- Execution time: %s seconds ---" % (time.time() - start_time))
+
+######## Logistic Regression ######
+start_time = time.time()
+# Setup Model
+log_reg = LogisticRegression()
+log_model = log_reg.fit(train_clean_data)
+
+# Evaluate the model
+test_results = log_model.transform(test_clean_data)
+acc_eval = MulticlassClassificationEvaluator()
+acc = acc_eval.evaluate(test_results)
+print("Accuracy of model at predicting spam was: {}".format(acc))
+print("-- Execution time: %s seconds ---" % (time.time() - start_time))
+
+# Random RandomForest
+
+start_time = time.time()
+rfc = RandomForestClassifier()
+
+# Train model.  This also runs the indexers.
+rfc_model = rfc.fit(train_clean_data)
+
+# Evaluate the model
+test_results = rfc_model.transform(test_clean_data)
+acc_eval = MulticlassClassificationEvaluator()
+acc = acc_eval.evaluate(test_results)
+print("Accuracy of model at predicting spam was: {}".format(acc))
+print("-- Execution time: %s seconds ---" % (time.time() - start_time))
+
+
+
+######### Gradient Boost #########
+start_time = time.time()
+gbt = GBTClassifier()
+gbt_model = gbt.fit(train_clean_data)
+
+# Evaluate the model
+test_results = gbt_model.transform(test_clean_data)
 acc_eval = MulticlassClassificationEvaluator()
 acc = acc_eval.evaluate(test_results)
 print("Accuracy of model at predicting spam was: {}".format(acc))

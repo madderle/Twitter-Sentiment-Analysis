@@ -15,4 +15,9 @@ sudo pip install -U \
 # Install in Python 3
 sudo pip-3.4 install -U \
   boto              \
+  jupyterlab        \
+  numpy             \
+  pandas            \
   tweet-preprocessor
+
+jupyter lab --no-browser --port 7777 --ip='*' --allow-root --NotebookApp.iopub_data_rate_limit=10000000
